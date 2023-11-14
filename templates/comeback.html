@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Resized</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="flex flex-col items-center justify-center min-h-screen space-y-4 bg-gray-100 dark:bg-gray-800">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">Your file has been succesfully resized</h1>
+        <button onclick="window.location.href='{{ url_for('home') }}'" class="items-center justify-center rounded-lg px-4 py-2 bg-gray-200 hover:bg-gray-300 duration-300">Go to the Home page</button>
+      </div>
+</body>
+</html>

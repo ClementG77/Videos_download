@@ -3,9 +3,9 @@ import sys
 import subprocess
 from moviepy.editor import VideoFileClip
 
-def resize_video(input_file, output_file):
-
-  command = f'ffmpeg -i {input_file}  -r 60 -vf "crop=ih*(9/16):ih" -crf 21 {output_file}'
+def resize_video(input_file, path,output_file):
+  output_file = os.path.join(path, output_file)
+  command = f'ffmpeg -i {input_file}  -r 60 -vf "crop=ih*(9/16):ih" -crf 21 -y {output_file}'
   subprocess.call(command, shell=True)
 
 if len(sys.argv) < 2:
@@ -14,7 +14,9 @@ if len(sys.argv) < 2:
 
 
 input_file = sys.argv[1]
-output_file = sys.argv[2]
+path = sys.argv[2]
+output_file = sys.argv[3]
 
 
-resize_video(input_file, output_file)
+resize_video(input_file,path, output_file)
+

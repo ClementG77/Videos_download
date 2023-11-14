@@ -6,53 +6,115 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="mx-auto max-w-sm space-y-6">
-        <div class="space-y-2 text-center">
-          <h1 class="text-3xl font-bold">File Upload</h1>
-          <p class="text-zinc-500 dark:text-zinc-400">
-            Upload your file and specify the output folder and duration of parts
-          </p>
-        </div>
-        <form class="space-y-4" action="/script" method="POST" enctype="multipart/form-data">
-          <div class="grid w-full items-center gap-1.5">
-            <label
-              class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              for="file"
-            >
-              File
-            </label>
-            <input
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              id="file"
-              required=""
-              type="file"
-              name="file"
-            />
-          </div>
-
-          <div class="space-y-2">
-            <label
-              class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              for="duration"
-            >
-              Duration of Parts (in seconds)
-            </label>
-            <input
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              id="duration"
-              placeholder="60"
-              required=""
-              type="number"
-              name="duration"
-            />
-          </div>
-          <button
-            class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-            type="submit"
-          >
-            Submit
-          </button>
-        </form>
+  <div class="mx-auto flex flex-col max-w-sm space-y-6">
+    <div class="space-y-2 text-center">
+      <h1 class="text-3xl font-bold">File Upload</h1>
+      <p class="text-zinc-500 dark:text-zinc-400">
+        Upload your file or provide a URL, and specify the output folder and duration of parts
+      </p>
+    </div>
+    <form class="space-y-4" action="/script" method="POST" enctype="multipart/form-data" >
+      <div class="space-y-2">
+        <label
+          class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          for="source"
+        >
+          Source
+        </label>
+        <select
+          aria-hidden="true"
+          tabindex="-1"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+          id="source"
+          onchange="getValue(this)"
+        >
+          <option value="">Select source</option>
+          <option value="file">File</option>
+          <option value="url">URL</option>
+        </select>
       </div>
+      <div class="grid w-full hidden items-center gap-1.5" id="file-input" aria-hidden="true">
+        <label
+          class="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          for="file"
+        >
+          File
+        </label>
+        <input
+          type="file"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          id="file"
+          name="file"
+        />
+      </div>
+      <div class="grid w-full hidden items-center gap-1.5" id="url-input" aria-hidden="true">
+        <label
+          class="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          for="url"
+        >
+          URL
+        </label>
+        <input
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          id="url"
+          placeholder="https://www.youtube.com/watch?v=D4hAVemuQXY"
+        />
+      </div>
+      <div class="space-y-2">
+        <label
+          class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          for="output-folder"
+        >
+          Output Folder
+        </label>
+        <input
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          id="output-folder"
+          placeholder="default is ( /static/output )"
+        />
+      </div>
+      <div class="space-y-2">
+        <label
+          class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          for="duration"
+        >
+          Duration of Parts (in seconds)
+        </label>
+        <input
+          type="number"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          id="duration"
+          placeholder="60"
+          name="duration"
+          required=""
+        />
+      </div>
+      <button
+        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+        type="submit"
+      >
+        Submit
+      </button>
+    </form>
+  </div>
+  <script>
+    function getValue(selectObject) {
+    var value = selectObject.value;
+    let file = document.getElementById('file-input');
+    let url = document.getElementById('url-input');
+    file.className = "grid w-full hidden items-center gap-1.5";
+    url.className = "grid w-full hidden items-center gap-1.5";
+    console.log(value)
+    if (value === "file") {
+      file.className = "grid w-full items-center gap-1.5";
+      return true
+    }
+    if (value === 'url') {
+      url.className = "grid w-full items-center gap-1.5";
+      return true
+    }
+    
+    }
+  </script>
 </body>
 </html>

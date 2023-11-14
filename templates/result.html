@@ -13,20 +13,25 @@
       <div class="rounded-xl overflow-hidden shadow-lg">
         <div class="relative aspect-video">
           <div class="flex flex-col items-center justify-center border-4 border-black-500 rounded-lg text-red-500 p-4">
-            <video id={{videos[i]}} preload="none" controls="controls" preload="preload">
+            <video id={{videos[i]}} controls="controls" preload="preload">
               <source src={{videos[i]}} type="video/mp4"></source>
             </video>
           </div>
         </div>
         <div class="p-4">
           <h2 class="text-lg font-semibold">Part n° {{i}}</h2>
-          <span class="text-sm text-gray-500 dark:text-gray-400">Duration:</span>
+          <form action="/resize" method="post">
+            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resize_video', filename=videos[i]) }}'">Resize this part</button>
+            <div class=""><input type="hidden" name="resize" value={{videos[i]}} class="rounded-lg px-4 py-2 bg-gray-600  hover:bg-gray-700 duration-300"></input></div>
+        </form>
+          
         </div>
       </div>
 		  {% endfor %}
       
     </div>
   </main>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 </body>
 </html>

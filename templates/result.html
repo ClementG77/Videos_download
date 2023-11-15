@@ -20,10 +20,9 @@
         </div>
         <div class="p-4">
           <h2 class="text-lg font-semibold">Part n° {{i}}</h2>
-          <form action="/resize" method="post">
             <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resize_video', filename=videos[i]) }}'">Resize this part</button>
+            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('rotate_video', filename=videos[i]) }}'">Rotate this part</button>
             <div class=""><input type="hidden" name="resize" value={{videos[i]}} class="rounded-lg px-4 py-2 bg-gray-600  hover:bg-gray-700 duration-300"></input></div>
-        </form>
           
         </div>
       </div>

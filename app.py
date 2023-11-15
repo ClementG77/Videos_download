@@ -6,6 +6,9 @@ import os, subprocess, shutil, pathlib,re
 
 UPLOAD_FOLDER = 'static/uploads/'
 OUTPUT_FOLDER = 'static/output/'
+RESIZE_FOLDER = 'static/resize/'
+ROTATE_FOLDER = 'static/rotate/'
+DOWNLOAD_FOLDER = 'static/download'
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -14,13 +17,46 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def home():
     reset_folder(OUTPUT_FOLDER)
     return render_template('index.html')
+@app.route('/rd')
+def resetDownload():
+    reset_folder(DOWNLOAD_FOLDER)
+    return render_template('index.html')
+@app.route('/rr')
+def resetResize():
+    reset_folder(RESIZE_FOLDER)
+    return render_template('index.html')
+@app.route('/rT')
+def resetRotate():
+    reset_folder(ROTATE_FOLDER)
+    return render_template('index.html')
+@app.route('/rU')
+def resetUpload():
+    reset_folder(UPLOAD_FOLDER)
+    return render_template('index.html')
+
 
 @app.route('/script', methods=['POST'])
 def upload_video():
+    url = request.form.get('url')
+    output_name = request.form.get('output_name') + ".mp4"
+    if url != "":
+        if 'youtube' in url :
+            path = DOWNLOAD_FOLDER
+            command = f'python yt_download.py {url} {path} {output_name}'
+            subprocess.call(command, shell=True)
+        else:
+            path = DOWNLOAD_FOLDER
+            command = f'python yt_download.py {url} {path} {output_name}'
+            subprocess.call(command, shell=True)
+        
+        part_duration = request.form.get('duration')
+        output_folder = 'static/output/'
+        command = f'python cut.py static/download/{output_name} {output_folder} {part_duration}'
+        subprocess.run(command, shell=True)
+        
+        videos = get_videos('static/output')
+        return render_template('result.html' , len=len(videos), videos=videos)
     
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
     file = request.files['file']
     if file.filename == '':
         flash('No video selected for uploading')
@@ -63,6 +99,9 @@ def reset_folder(folder):
 
 
 
+@app.route('/resizePage')
+def resizePage():
+    return render_template("resize.html")
 
 @app.route('/resize',methods=['GET', 'POST'])
 def resize_video():
@@ -87,6 +126,14 @@ def resize_video():
     # videos = get_videos()
                 
     return render_template('comeback.html')
+
+@app.route('/rotatePage')
+def rotatePage():
+    return render_template("rotate.html")
+
+@app.route('/rotate')
+def rotate_video():
+    return render_template("rotate_result.html")
 
 
 if __name__ == "__main__":

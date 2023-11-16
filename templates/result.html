@@ -2,11 +2,106 @@
 <html>
 <head>
     <title>Video Cutter Result</title>
+    <style>
+      div#loading {
+    background: url(/static/image/loading.gif) no-repeat center center;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999999;
+    }
+      </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <main class="container mx-auto px-4 py-8">
+  <header class="flex justify-between px-6 py-4 bg-white shadow-sm">
+    <div></div>
+    <div class="flex space-x-4 text-black text-lg">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('home') }}">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class=" h-6 w-6"
+        >
+          <circle cx="6" cy="6" r="3"></circle>
+          <path d="M8.12 8.12 12 12"></path>
+          <path d="M20 4 8.12 15.88"></path>
+          <circle cx="6" cy="18" r="3"></circle>
+          <path d="M14.8 14.8 20 20"></path>
+        </svg>
+        <span>Cut</span>
+      </a>
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('resizePage') }}">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class=" h-6 w-6"
+        >
+          <path d="m15 15 6 6m-6-6v4.8m0-4.8h4.8"></path>
+          <path d="M9 19.8V15m0 0H4.2M9 15l-6 6"></path>
+          <path d="M15 4.2V9m0 0h4.8M15 9l6-6"></path>
+          <path d="M9 4.2V9m0 0H4.2M9 9 3 3"></path>
+        </svg>
+        <span>Resize</span>
+      </a>
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('rotatePage') }}">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class=" h-6 w-6"
+        >
+          <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+          <path d="M21 3v5h-5"></path>
+        </svg>
+        <span>Rotate</span>
+      </a>
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="#">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class=" h-6 w-6"
+        >
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Custom</span>
+      </a>
+    </div>
+  </header>
+  <div id="loading"></div>
+  <main id="content"class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-center mb-8">Video Gallery</h1>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {%for i in range(0, len)%}
@@ -16,21 +111,46 @@
             <video id={{videos[i]}} controls="controls" preload="preload">
               <source src={{videos[i]}} type="video/mp4"></source>
             </video>
+          
           </div>
         </div>
-        <div class="p-4">
-          <h2 class="text-lg font-semibold">Part n° {{i}}</h2>
-            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resize_video', filename=videos[i]) }}'">Resize this part</button>
-            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('rotate_video', filename=videos[i]) }}'">Rotate this part</button>
-            <div class=""><input type="hidden" name="resize" value={{videos[i]}} class="rounded-lg px-4 py-2 bg-gray-600  hover:bg-gray-700 duration-300"></input></div>
-          
+        <div id="number"  class="p-4 flex flex-col gap-2 {{number}}">
+          <h2 id="test" class="text-lg font-semibold">Part n° {{i + 1 }}</h2>
+          <div class=" gap-4 flex flex-col	">
+          {% if resized and  len.index == number %}
+          <button type="button " disabled id="{{i +1}}" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-red-600 text-gray-600 hover:bg-red-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resize_video', filename=videos[i]) }}';this.disabled=true">Resize this part</button>
+          {% else %}
+          <button type="button " id="{{i +1}}" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resize_video', filename=videos[i]) }}';loading()">Resize this part</button>
+          {% endif %}
+            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-blue-600 text-gray-600 hover:bg-blue-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resizePreview', filename=videos[i]) }}'">Preview Resize</button>
+            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('rotate_video', filename=videos[i]) }}';loading()">Rotate this part</button>
+            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-blue-600 text-gray-600 hover:bg-blue-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('rotatePreview', filename=videos[i]) }}'">Preview Rotate</button>
+            <div class=""><input type="hidden" id="value" name="resize" value='{{i}}' class="rounded-lg px-4 py-2 bg-gray-600  hover:bg-gray-700 duration-300"></input></div>
+          </div>
         </div>
       </div>
 		  {% endfor %}
-      
     </div>
   </main>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>
+
+
+     if (document.getElementById('number') ) {
+       number = document.getElementById('number').className
+       number = number.toString().replace('p-4',' ')
+       if (number > 0) {
+        // console.log(number)
+        // console.log(document.getElementById("value").value)
+       }
+     }
+
+     function loading(){
+      document.getElementById('loading').style.display = "block";
+      document.getElementById('content').style.display = 'none';   
+     }
+    
+  </script>
 
 </body>
 </html>

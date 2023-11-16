@@ -2,6 +2,18 @@
 <html>
 <head>
     <title>Video Cutter</title>
+    <style>
+      div#loading {
+    background: url(/static/image/loading.gif) no-repeat center center;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999999;
+    }
+      </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -9,7 +21,7 @@
   <header class="flex justify-between px-6 py-4 bg-white shadow-sm">
     <div></div>
     <div class="flex space-x-4 text-black text-lg">
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('resizePage') }}">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('home') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -88,6 +100,8 @@
       </a>
     </div>
   </header>
+  <div id="loading"></div>
+  <div id="content">
   <div class="mx-auto flex flex-col justify-center h-screen max-w-sm space-y-6">
     <div class="space-y-2 text-center">
       <h1 class="text-3xl font-bold">File Upload</h1>
@@ -189,6 +203,7 @@
       <button
         class="rounded-lg px-4 py-2 bg-gray-600 text-gray-100 hover:bg-gray-700 duration-300"
         type="submit"
+        onclick="loading()"
       >
         Submit
       </button>
@@ -208,8 +223,16 @@
       </Button>
     </div>
   </div>
+  </div>
 
   <script>
+    
+        function loading(){
+          console.log("hello loading")
+            document.getElementById('loading').style.display = "block";
+            document.getElementById('content').style.display = 'none';       
+        }
+// ]]
     function getValue(selectObject) {
     var value = selectObject.value;
     let file = document.getElementById('file-input');

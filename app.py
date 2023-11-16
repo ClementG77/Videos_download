@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, flash, request, send_from_directory, url_for
+from flask import Flask, render_template, redirect, flash, request, send_from_directory, url_for, session
 from werkzeug.utils import secure_filename
 from utils import *
 import os, subprocess, shutil, pathlib,re
@@ -38,18 +38,31 @@ def resetUpload():
 @app.route('/script', methods=['POST'])
 def upload_video():
     url = request.form.get('url')
-    output_name = request.form.get('output_name') + ".mp4"
+    output_name = request.form.get('output_name')
+    part_duration = request.form.get('duration')
+    session['url'] = url
+    session['output_name'] = output_name
+    session['duration'] = part_duration
+    print(output_name)
     if url != "":
         if 'youtube' in url :
             path = DOWNLOAD_FOLDER
+            output_name = request.form.get('output_name') + ".mp4"
             command = f'python yt_download.py {url} {path} {output_name}'
             subprocess.call(command, shell=True)
         else:
             path = DOWNLOAD_FOLDER
-            command = f'python yt_download.py {url} {path} {output_name}'
+            url = '"' + url +'"'
+            command = f'python videoDownloader.py {url} {output_name}'
+            print(command)
             subprocess.call(command, shell=True)
+            videos = [f for f in os.listdir() if '.mp4' in f.lower()]
+
+            for video in videos:
+                new_path = 'static/download/' + video
+                shutil.move(video, new_path)
+            output_name = output_name+"HD.mp4"
         
-        part_duration = request.form.get('duration')
         output_folder = 'static/output/'
         command = f'python cut.py static/download/{output_name} {output_folder} {part_duration}'
         subprocess.run(command, shell=True)
@@ -62,10 +75,10 @@ def upload_video():
         flash('No video selected for uploading')
         return redirect(request.url)
     else:
-        part_duration = request.form.get('duration')
         output_folder = 'static/output/'
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        session['file'] = 'static/uploads/'+filename
         command = f'python cut.py static/uploads/{filename} {output_folder} {part_duration}'
         subprocess.run(command, shell=True)
         videos = get_videos('static/output')
@@ -103,6 +116,15 @@ def reset_folder(folder):
 def resizePage():
     return render_template("resize.html")
 
+@app.route('/resizePreview')
+def resizePreview():
+    filename = request.args.get("filename")
+    file = session.get('file')
+    part_duration = session.get('duration')
+    command = f'python preview.py {filename}'
+    subprocess.run(command, shell=True)
+    return redirect(url_for('reupload_video',file = file, duration=part_duration, resized=False))
+
 @app.route('/resize',methods=['GET', 'POST'])
 def resize_video():
     
@@ -111,6 +133,13 @@ def resize_video():
     filename = filename.replace("%2F","/")
     filename = filename.replace("%5C","/")
     
+    file = session.get('file')
+    part_duration = session.get('duration')
+    file_parts = os.path.splitext(filename)[0].split('_')  # Split the filename and remove the extension
+    part_number = file_parts[1][4:] 
+    session['number'] = part_number
+
+
     path = "static/resize"
     pathl = pathlib.Path(filename)
     output = f"resized_{pathl.name}"
@@ -125,15 +154,89 @@ def resize_video():
     # 
     # videos = get_videos()
                 
-    return render_template('comeback.html')
+    return redirect(url_for('reupload_video',file = file, duration=part_duration,resized=True,number = part_number))
 
 @app.route('/rotatePage')
 def rotatePage():
     return render_template("rotate.html")
 
-@app.route('/rotate')
+@app.route('/rotatePreview')
+def rotatePreview():
+    filename = request.args.get("filename")
+    file = session.get('file')
+    part_duration = session.get('duration')
+    command = f'python rotatePreview.py {filename}'
+    subprocess.run(command, shell=True)
+    return redirect(url_for('reupload_video',file = file, duration=part_duration, resized=False))
+
+@app.route('/rotate',methods=['GET', 'POST'])
 def rotate_video():
-    return render_template("rotate_result.html")
+    
+    filename = request.args.get("filename")
+
+
+    filename = filename.replace("%2F","/")
+    filename = filename.replace("%5C","/")
+    
+    file = session.get('file')
+    url = session.get('url')
+    part_duration = session.get('duration')
+    output_name = session.get('output_name')
+
+    print("file",file, "url", url, 'duration', part_duration,'output', output_name)
+
+    path = "static/resize"
+    pathl = pathlib.Path(filename)
+    output = f"resized_{pathl.name}"
+    command = f'python resize.py {filename} {path} {output} '
+    subprocess.run(command, shell=True)
+    # file = request.files['button']
+    # part_duration = request.form.get('duration')
+    # output_folder = 'static/output/'
+    # filename = secure_filename(file.filename)
+    # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    # 
+    # 
+    # videos = get_videos()
+                
+    return redirect(url_for('reupload_video',file = file, duration=part_duration,resized=True))
+
+
+
+
+
+
+
+
+@app.route('/rerender', methods=['POST',"GET"])
+def reupload_video():
+    part_duration = request.args.get('duration')
+    number = request.args.get('number')
+    resized = request.args.get('resized')
+    
+    file = request.args.get("file")
+    file = file.replace("%2F","/")
+    file = file.replace("%5C","/")
+
+    if file == '':
+        flash('No video selected for uploading')
+        return redirect(request.url)
+    else:
+        output_folder = 'static/output/'
+        command = f'python cut.py {file} {output_folder} {part_duration}'
+        subprocess.run(command, shell=True)
+        videos = get_videos('static/output')
+                
+        return render_template('result.html' , len=len(videos), videos=videos , resized= resized, number=number)
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

@@ -185,19 +185,11 @@ def rotate_video():
 
     print("file",file, "url", url, 'duration', part_duration,'output', output_name)
 
-    path = "static/resize"
+    path = "static/rotate"
     pathl = pathlib.Path(filename)
-    output = f"resized_{pathl.name}"
-    command = f'python resize.py {filename} {path} {output} '
+    output = f"static/rotate/rotated_{pathl.name}"
+    command = f'python rotate.py {filename} {output} '
     subprocess.run(command, shell=True)
-    # file = request.files['button']
-    # part_duration = request.form.get('duration')
-    # output_folder = 'static/output/'
-    # filename = secure_filename(file.filename)
-    # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    # 
-    # 
-    # videos = get_videos()
                 
     return redirect(url_for('reupload_video',file = file, duration=part_duration,resized=True))
 

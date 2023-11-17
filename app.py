@@ -2,6 +2,9 @@ from flask import Flask, render_template, redirect, flash, request, send_from_di
 from werkzeug.utils import secure_filename
 from utils import *
 import os, subprocess, shutil, pathlib,re
+from threading import Timer
+import webbrowser
+from flask_socketio import SocketIO
 
 
 UPLOAD_FOLDER = 'static/uploads/'
@@ -225,9 +228,21 @@ def reupload_video():
 
 
 
+def open_browser():
+      webbrowser.open_new("http://127.0.0.1:5000")
 
 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    # Initiate the shutdown process for the Flask application
+    shutdown_server()
+    return 'Shutting down...'
 
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
 
 
 
@@ -235,5 +250,5 @@ if __name__ == "__main__":
     # Quick test configuration. Please use proper Flask configuration options
     # in production settings, and use a separate file or environment variables
     # to manage the secret key!
-    
+    Timer(1, open_browser).start()
     app.run(debug=True)

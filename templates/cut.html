@@ -18,10 +18,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <header class="flex justify-between px-6 py-4 bg-white shadow-sm">
-    <div></div>
+  <header class="flex justify-between px-6 py-4  border-b-2 border-white shadow-sm">
+    <div>
+        <a class="group flex items-center space-x-2 text-3xl font-bold p-2 rounded-md" href="{{ url_for('home') }}">
+        <h1 className="">Video Edit</h1>
+        </a>
+    </div>
     <div class="flex space-x-4 text-black text-lg">
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('home') }}">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('cutPage') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -80,7 +84,7 @@
         </svg>
         <span>Rotate</span>
       </a>
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="#">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('customPage') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -102,7 +106,10 @@
   </header>
   <div id="loading"></div>
   <div id="content">
-  <div class="mx-auto flex flex-col justify-center h-screen max-w-sm space-y-6">
+  <div class="mx-auto flex flex-col justify-center py-10  min-h-[50%] max-w-sm space-y-6">
+    <div class="flex justify-center ">
+      <h1 class="text-3xl font-bold">Cut your video</h1>
+    </div>
     <div class="space-y-2 text-center">
       <h1 class="text-3xl font-bold">File Upload</h1>
       <p class="text-zinc-500 dark:text-zinc-400">
@@ -171,19 +178,7 @@
           placeholder=" Anime_Edit"
         />
       </div>
-      <div id="output_folder-input" class="space-y-2">
-        <label
-          class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          for="output-folder"
-        >
-          Output Folder
-        </label>
-        <input
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          id="output-folder"
-          placeholder="default is ( /static/output )"
-        />
-      </div>
+
       <div class="space-y-2">
         <label
           class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -197,7 +192,7 @@
           id="duration"
           placeholder="60"
           name="duration"
-          required=""
+          required
         />
       </div>
       <button
@@ -208,25 +203,15 @@
         Submit
       </button>
     </form>
-    <div class="mt-4 grid gap-x-8 gap-y-4 grid-cols-3 gap-2">
-      <Button class="rounded-lg px-4 py-2 bg-gray-600 text-gray-100 hover:bg-gray-700 duration-300" onclick="window.location.href='{{ url_for('resetUpload') }}'" variant="outline">
-        Clear Upload
-      </Button>
-      <Button class="rounded-lg px-4 py-2 bg-gray-600 text-gray-100 hover:bg-gray-700 duration-300" onclick="window.location.href='{{ url_for('resetDownload') }}'" variant="outline">
-        Clear Download
-      </Button>
-      <Button class="rounded-lg px-4 py-2 bg-gray-600 text-gray-100 hover:bg-gray-700 duration-300" onclick="window.location.href='{{ url_for('resetResize' )}}'" variant="outline">
-        Clear Resize
-      </Button>
-      <Button class="rounded-lg px-4 py-2 bg-gray-600 text-gray-100 hover:bg-gray-700 duration-300" onclick="window.location.href='{{ url_for('resetRotate')}}'" variant="outline">
-        Clear Rotate
-      </Button>
-    </div>
   </div>
   </div>
   <script>
     
         function loading(){
+          if (document.getElementById('duration').value =="") {
+            console.log('value = 0')
+            return false
+          }
           console.log("hello loading")
             document.getElementById('loading').style.display = "block";
             document.getElementById('content').style.display = 'none';       
@@ -236,13 +221,13 @@
     var value = selectObject.value;
     let file = document.getElementById('file-input');
     let url = document.getElementById('url-input');
-    let output_folder = document.getElementById('output_folder-input')
     let output_name = document.getElementById('output_name-input')
     let input_file = document.getElementById("file")
     let input_url = document.getElementById("url")
     let input_output_name = document.getElementById('output_name')
     file.className = "grid w-full hidden items-center gap-1.5";
     url.className = "grid w-full hidden items-center gap-1.5";
+    output_name.className = "grid w-full hidden items-center gap-1.5"
     if (value === "file") {
       file.className = "grid w-full items-center gap-1.5";
       input_file.required = true
@@ -253,7 +238,6 @@
     if (value === 'url') {
       url.className = "grid w-full items-center gap-1.5";
       output_name.className = "grid w-full items-center gap-1.5";
-      output_folder.className = "grid w-full hidden items-center gap-1.5";
       input_url.required = true
       input_file.required = false
       input_output_name.required = true

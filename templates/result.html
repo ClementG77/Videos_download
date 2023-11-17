@@ -18,10 +18,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <header class="flex justify-between px-6 py-4 bg-white shadow-sm">
-    <div></div>
+  <header class="flex justify-between px-6 py-4  border-b-2 border-white shadow-sm">
+    <div>
+        <a class="group flex items-center space-x-2 text-3xl font-bold p-2 rounded-md" href="{{ url_for('home') }}">
+        <h1 className="">Video Edit</h1>
+        </a>
+    </div>
     <div class="flex space-x-4 text-black text-lg">
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('home') }}">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('cutPage') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -80,7 +84,7 @@
         </svg>
         <span>Rotate</span>
       </a>
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="#">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('customPage') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

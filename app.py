@@ -19,33 +19,35 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/')
 def home():
     reset_folder(OUTPUT_FOLDER)
-    return render_template('index.html')
+    return render_template('home.html')
 @app.route('/rd')
 def resetDownload():
     reset_folder(DOWNLOAD_FOLDER)
-    return render_template('index.html')
+    return render_template('home.html')
 @app.route('/rr')
 def resetResize():
     reset_folder(RESIZE_FOLDER)
-    return render_template('index.html')
+    return render_template('home.html')
 @app.route('/rT')
 def resetRotate():
     reset_folder(ROTATE_FOLDER)
-    return render_template('index.html')
+    return render_template('home.html')
 @app.route('/rU')
 def resetUpload():
     reset_folder(UPLOAD_FOLDER)
-    return render_template('index.html')
+    return render_template('home.html')
 
+
+
+@app.route('/cutPage')
+def cutPage():
+    return render_template("cut.html")
 
 @app.route('/script', methods=['POST'])
 def upload_video():
     url = request.form.get('url')
     output_name = request.form.get('output_name')
     part_duration = request.form.get('duration')
-    session['url'] = url
-    session['output_name'] = output_name
-    session['duration'] = part_duration
     print(output_name)
     if url != "":
         if 'youtube' in url :
@@ -122,11 +124,9 @@ def resizePage():
 @app.route('/resizePreview')
 def resizePreview():
     filename = request.args.get("filename")
-    file = session.get('file')
-    part_duration = session.get('duration')
     command = f'python preview.py {filename}'
     subprocess.run(command, shell=True)
-    return redirect(url_for('reupload_video',file = file, duration=part_duration, resized=False))
+    return redirect(url_for('reupload_video',file=filename, resized=False))
 
 @app.route('/resize',methods=['GET', 'POST'])
 def resize_video():
@@ -137,7 +137,6 @@ def resize_video():
     filename = filename.replace("%5C","/")
     
     file = session.get('file')
-    part_duration = session.get('duration')
     file_parts = os.path.splitext(filename)[0].split('_')  # Split the filename and remove the extension
     part_number = file_parts[1][4:] 
     session['number'] = part_number
@@ -157,7 +156,7 @@ def resize_video():
     # 
     # videos = get_videos()
                 
-    return redirect(url_for('reupload_video',file = file, duration=part_duration,resized=True,number = part_number))
+    return redirect(url_for('reupload_video',file= file,resized=True,number = part_number))
 
 @app.route('/rotatePage')
 def rotatePage():
@@ -166,46 +165,29 @@ def rotatePage():
 @app.route('/rotatePreview')
 def rotatePreview():
     filename = request.args.get("filename")
-    file = session.get('file')
-    part_duration = session.get('duration')
     command = f'python rotatePreview.py {filename}'
     subprocess.run(command, shell=True)
-    return redirect(url_for('reupload_video',file = file, duration=part_duration, resized=False))
+    return redirect(url_for('reupload_video',file=filename, resized=False))
 
 @app.route('/rotate',methods=['GET', 'POST'])
 def rotate_video():
-    
     filename = request.args.get("filename")
-
 
     filename = filename.replace("%2F","/")
     filename = filename.replace("%5C","/")
-    
-    file = session.get('file')
-    url = session.get('url')
-    part_duration = session.get('duration')
-    output_name = session.get('output_name')
 
-    print("file",file, "url", url, 'duration', part_duration,'output', output_name)
 
-    path = "static/rotate"
     pathl = pathlib.Path(filename)
     output = f"static/rotate/rotated_{pathl.name}"
     command = f'python rotate.py {filename} {output} '
     subprocess.run(command, shell=True)
                 
-    return redirect(url_for('reupload_video',file = file, duration=part_duration,resized=True))
-
-
-
-
-
+    return redirect(url_for('reupload_video',file=filename,resized=True))
 
 
 
 @app.route('/rerender', methods=['POST',"GET"])
 def reupload_video():
-    part_duration = request.args.get('duration')
     number = request.args.get('number')
     resized = request.args.get('resized')
     
@@ -217,15 +199,14 @@ def reupload_video():
         flash('No video selected for uploading')
         return redirect(request.url)
     else:
-        output_folder = 'static/output/'
-        command = f'python cut.py {file} {output_folder} {part_duration}'
-        subprocess.run(command, shell=True)
         videos = get_videos('static/output')
                 
         return render_template('result.html' , len=len(videos), videos=videos , resized= resized, number=number)
 
 
-
+@app.route('/customPage')
+def customPage():
+    return render_template("custom.html")
 
 
 def open_browser():

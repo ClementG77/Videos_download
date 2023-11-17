@@ -3,13 +3,29 @@
 <head>
     <title>Video Cutter</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      div#loading {
+    background: url(/static/image/loading.gif) no-repeat center center;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999999;
+    }
+      </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <header class="flex justify-between px-6 py-4 bg-white shadow-sm">
-    <div></div>
+  <header class="flex justify-between px-6 py-4  border-b-2 border-white shadow-sm">
+    <div>
+        <a class="group flex items-center space-x-2 text-3xl font-bold p-2 rounded-md" href="{{ url_for('home') }}">
+        <h1 className="">Video Edit</h1>
+        </a>
+    </div>
     <div class="flex space-x-4 text-black text-lg">
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('home') }}">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('cutPage') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -68,7 +84,7 @@
         </svg>
         <span>Rotate</span>
       </a>
-      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="#">
+      <a class="group flex items-center space-x-2 hover:bg-gray-200 hover:text-black p-2 rounded-md" href="{{ url_for('customPage') }}">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -88,5 +104,131 @@
       </a>
     </div>
   </header>
+  <div id="loading"></div>
+  <div id="content">
+    <div class="mx-auto flex flex-col justify-center py-10  min-h-[50%] max-w-sm space-y-6">
+      <div class="flex justify-center ">
+        <h1 class="text-3xl font-bold">Resize your video</h1>
+      </div>
+      <div class="space-y-2 text-center">
+        <h1 class="text-3xl font-bold">File Upload</h1>
+        <p class="text-zinc-500 dark:text-zinc-400">
+          Upload your file or provide a URL, and specify the output folder and duration of parts
+        </p>
+      </div>
+      <form class="space-y-4 flex flex-col" action="/script" method="POST" enctype="multipart/form-data" >
+        <div class="space-y-2">
+          <label
+            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            for="source"
+          >
+            Source
+          </label>
+          <select
+            aria-hidden="true"
+            tabindex="-1"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+            id="source"
+            onchange="getValue(this)"
+          >
+            <option value="">Select source</option>
+            <option value="file">File</option>
+            <option value="url">URL</option>
+          </select>
+        </div>
+        <div class="grid w-full hidden items-center gap-1.5" id="file-input" aria-hidden="true">
+          <label
+            class="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            for="file"
+          >
+            File
+          </label>
+          <input
+            type="file"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            id="file"
+            name="file"
+          />
+        </div>
+        <div class="grid w-full hidden items-center gap-1.5" id="url-input" aria-hidden="true">
+          <label
+            class="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            for="url"
+          >
+            URL
+          </label>
+          <input
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            id="url"
+            name="url"
+            placeholder="https://www.youtube.com/watch?v=D4hAVemuQXY"
+          />
+        </div>
+        <div class="grid w-full hidden items-center gap-1.5" id="output_name-input" aria-hidden="true">
+          <label
+            class="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            for="url"
+          >
+            Name for the file
+          </label>
+          <input
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            id="output_name"
+            name="output_name"
+            placeholder=" Anime_Edit"
+          />
+        </div>
+        <button
+          class="rounded-lg px-4 py-2 bg-gray-600 text-gray-100 hover:bg-gray-700 duration-300"
+          type="submit"
+          onclick="loading()"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+  <script>
+    
+    function loading(){
+          if (document.getElementById('duration').value =="") {
+            return false
+          }
+          console.log("hello loading")
+            document.getElementById('loading').style.display = "block";
+            document.getElementById('content').style.display = 'none';       
+        }
+// ]]
+function getValue(selectObject) {
+var value = selectObject.value;
+let file = document.getElementById('file-input');
+let url = document.getElementById('url-input');
+let output_folder = document.getElementById('output_folder-input')
+let output_name = document.getElementById('output_name-input')
+let input_file = document.getElementById("file")
+let input_url = document.getElementById("url")
+let input_output_name = document.getElementById('output_name')
+file.className = "grid w-full hidden items-center gap-1.5";
+url.className = "grid w-full hidden items-center gap-1.5";
+if (value === "file") {
+  file.className = "grid w-full items-center gap-1.5";
+  input_file.required = true
+  input_url.required = false
+  input_output_name.required = false
+  return true
+}
+if (value === 'url') {
+  url.className = "grid w-full items-center gap-1.5";
+  output_name.className = "grid w-full items-center gap-1.5";
+  output_folder.className = "grid w-full hidden items-center gap-1.5";
+  input_url.required = true
+  input_file.required = false
+  input_output_name.required = true
+  return true
+}
+
+}
+
+</script>
 </body>
 </html>

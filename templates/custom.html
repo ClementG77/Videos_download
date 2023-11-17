@@ -108,7 +108,7 @@
   <div id="content">
     <div class="mx-auto flex flex-col justify-center py-10  min-h-[50%] max-w-sm space-y-6">
       <div class="flex justify-center ">
-        <h1 class="text-3xl font-bold">Rotate your video</h1>
+        <h1 class="text-3xl font-bold">Custom your video</h1>
       </div>
       <div class="space-y-2 text-center">
         <h1 class="text-3xl font-bold">File Upload</h1>
@@ -192,6 +192,7 @@
     
     function loading(){
           if (document.getElementById('duration').value =="") {
+            console.log('value = 0')
             return false
           }
           console.log("hello loading")

@@ -129,6 +129,7 @@
             <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-blue-600 text-gray-600 hover:bg-blue-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('resizePreview', filename=videos[i]) }}'">Preview Resize</button>
             <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('rotate_video', filename=videos[i]) }}';loading()">Rotate this part</button>
             <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-blue-600 text-gray-600 hover:bg-blue-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('rotatePreview', filename=videos[i]) }}'">Preview Rotate</button>
+            <button type="button" class="font-bold pb-2 text-center rounded-lg px-4 py-2 border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-gray-100 duration-300" onclick="window.location.href='{{ url_for('blur_video', filename=videos[i]) }}';loading()">Blur this part</button>
             <div class=""><input type="hidden" id="value" name="resize" value='{{i}}' class="rounded-lg px-4 py-2 bg-gray-600  hover:bg-gray-700 duration-300"></input></div>
           </div>
         </div>

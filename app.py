@@ -12,6 +12,7 @@ OUTPUT_FOLDER = 'static/output/'
 RESIZE_FOLDER = 'static/resize/'
 ROTATE_FOLDER = 'static/rotate/'
 DOWNLOAD_FOLDER = 'static/download'
+BLUR_FOLDER = 'static/blur'
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -35,6 +36,11 @@ def resetRotate():
 @app.route('/rU')
 def resetUpload():
     reset_folder(UPLOAD_FOLDER)
+    return render_template('home.html')
+
+@app.route('/rB')
+def resetBlur():
+    reset_folder(BLUR_FOLDER)
     return render_template('home.html')
 
 
@@ -204,9 +210,35 @@ def reupload_video():
         return render_template('result.html' , len=len(videos), videos=videos , resized= resized, number=number)
 
 
+@app.route('/blurPreview')
+def blurPreview():
+    filename = request.args.get("filename")
+    filename = filename.replace("%2F","/")
+    filename = filename.replace("%5C","/")
+    print(filename)
+    command = f'python blurPreview.py {filename}'
+    subprocess.run(command, shell=True)
+    return redirect(url_for('reupload_video',file=filename, resized=False))
+
+@app.route('/blur',methods=['GET', 'POST'])
+def blur_video():
+    filename = request.args.get("filename")
+
+    filename = filename.replace("%2F","/")
+    filename = filename.replace("%5C","/")
+
+
+    pathl = pathlib.Path(filename)
+    output = f"static/blur/blurred_{pathl.name}"
+    command = f'python blur.py {filename} {output} '
+    subprocess.run(command, shell=True)
+                
+    return redirect(url_for('reupload_video',file=filename,resized=True))
+
 @app.route('/customPage')
 def customPage():
     return render_template("custom.html")
+
 
 
 def open_browser():
